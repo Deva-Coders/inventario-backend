@@ -4,7 +4,7 @@ FROM python:3.12.4-alpine
 
 # Set the working directory
 WORKDIR /zaiko
-
+#run apt-get update && apt-get install -y libpq-dev gcc
 # Copy the requirements file
 COPY ./requirements.txt /zaiko/requirements.txt
 

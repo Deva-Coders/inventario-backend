@@ -1,0 +1,24 @@
+services:
+ 
+  zaiko:
+    image: zaiko
+    container_name: zaiko
+    #restart: always
+    ports:
+      - 8007:80 
+
+  zaiko-db:
+    image: postgres:16-alpine  
+    container_name: zaiko-db
+    #restart: always
+    environment:
+      POSTGRES_PASSWORD: iiiiiooooo 
+    #volumes:
+    #   - ./db:/var/lib/postgresql/data
+ 
+
+  adminer:
+    image: adminer
+    #restart: always
+    ports:
+      - 8050:8080
