@@ -1,4 +1,4 @@
-from models.create_all import User
+from models.models import User
 from db  import async_session as session
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
