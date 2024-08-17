@@ -12,7 +12,7 @@ COPY ./requirements.txt /zaiko/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /zaiko/requirements.txt
 
 # Copy the rest of the application code
-COPY ./zaiko /zaiko
+COPY ./zaiko . 
 
 # Expose the port the app runs on
 EXPOSE 80
