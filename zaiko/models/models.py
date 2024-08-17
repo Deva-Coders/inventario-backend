@@ -2,7 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float 
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -15,20 +15,43 @@ class User(Base):
 class Product(Base):
     __tablename__ = 'product'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    Name = Column(String, nullable=False)
-    Description = Column(String, nullable=False)
-    Price = Column(Integer, nullable=False)
-    img =Column(String, nullable=True)
-    Supplier_id = Column(Integer, nullable=False)
-    id_category = Column(Integer, nullable=False)
-    id_warehouse = Column(Integer, nullable=False)
+    code = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    unitPrice = Column(Float, nullable=False)
+    image =Column(String, nullable=True)
+    supplier = Column(Integer, nullable=False)
+    category = Column(Integer, nullable=False)
+    ware = Column(Integer, nullable=False)
+
+
+class Supplier(Base):
+    __tablename__ = 'supplier'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+
+
+class Category(Base):
+    __tablename__ = 'category'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+
+
+class Warehouse(Base):
+    __tablename__ = 'warehouse'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    location = Column(String, nullable=False)
 
 
 class Inventory(Base):
     __tablename__ = 'inventory'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    Quantity = Column(Integer, nullable=False)
-    Product_id = Column(Integer, nullable=False)
+    quantity = Column(Integer, nullable=False)
+    product = Column(Integer, nullable=False)
 
 
 class Purchase_order(Base):
@@ -38,25 +61,4 @@ class Purchase_order(Base):
     Order_quantity = Column(Integer, nullable=False)
     Supplier_id = Column(Integer, nullable=False)
 
-
-class Supplier(Base):
-    __tablename__ = 'supplier'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    Name = Column(String, nullable=False)
-    Address = Column(String, nullable=False)
-    Phone = Column(String, nullable=False)
-    Email = Column(String, nullable=False)
-
-
-class Category(Base):
-    __tablename__ = 'category'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    Name = Column(String, nullable=False)
-
-
-class Warehouse(Base):
-    __tablename__ = 'warehouse'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    Name = Column(Integer, nullable=False)
-    location = Column(String, nullable=False)
 
