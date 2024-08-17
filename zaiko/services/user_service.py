@@ -21,7 +21,14 @@ async def add_user(user: UserSchema):
     try:
         async with session() as mysession:
             async with mysession.begin():
-                new_user = User(name=user.name, email=user.email, password=user.password)
+                new_user = User(fullName=user.fullName, 
+                    email=user.email, 
+                    password=user.password,
+                    phone=user.phone,
+                    secretQuestion=user.secretQuestion,
+                    secretAnswer=user.secretAnswer,
+                    role=user.role
+                    )
                 mysession.add(new_user)
                 await mysession.commit()        
 

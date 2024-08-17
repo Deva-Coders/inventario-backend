@@ -6,10 +6,13 @@ from sqlalchemy import Column, Integer, String, Float
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    email = Column(String)
-    password = Column(String)
-    role = Column(String)
+    fullName = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    phone = Column(String, nullable=True)
+    password = Column(String, nullable=False)
+    secretQuestion= Column(String, nullable=True)
+    secretAnswer= Column(String, nullable=True)
+    role = Column(String, nullable=True, default='user')
 
 
 class Product(Base):
@@ -21,8 +24,8 @@ class Product(Base):
     unitPrice = Column(Float, nullable=False)
     image =Column(String, nullable=True)
     supplier = Column(Integer, nullable=False)
-    category = Column(Integer, nullable=False)
-    ware = Column(Integer, nullable=False)
+    category = Column(Integer, nullable=True)
+    ware = Column(Integer, nullable=True)
 
 
 class Supplier(Base):
