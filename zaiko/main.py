@@ -8,11 +8,20 @@ import json
 import uvicorn
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
 app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(category.router)
 app.include_router(supplier.router)
 app.include_router(warehouse.router)
+
+
 
 class Item(BaseModel):
     name: str
