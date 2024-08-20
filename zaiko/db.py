@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-
-engine = create_async_engine("postgresql+asyncpg://postgres:iiiiiooooo@zaiko-db/postgres")
+from decouple import config
+dbuser = config('DB_USER')  
+dbpassword = config('DB_PASSWORD')
+engine = create_async_engine(f"postgresql+asyncpg://{dbuser}:{dbpassword}@zaiko-db/postgres")
 from models.models  import Base
 # Create an asynchronous session
 async_session = sessionmaker(

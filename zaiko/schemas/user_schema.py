@@ -9,3 +9,13 @@ class UserSchema(BaseModel):
     secretQuestion: str
     password: str
     role: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserLoginReset(BaseModel):
+    email: str
+    old_password: str
+    new_password: str
+
