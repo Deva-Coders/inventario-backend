@@ -9,9 +9,9 @@ class User(Base):
     fullName = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
-    password = Column(String,length=100, nullable=False)
+    password = Column(String(length=100), nullable=False)
     secretQuestion= Column(String, nullable=True)
-    secretAnswer= Column(String, nullable=True)
+    secretAnswer= Column(String(length=100), nullable=True)
     role = Column(String, nullable=True, default='user')
 
 
@@ -20,7 +20,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    description = Column(String,length=100 , nullable=False)
+    description = Column(String(length=100) , nullable=False)
     unitPrice = Column(Float, nullable=False)
     image =Column(String, nullable=True)
     supplier = Column(Integer, nullable=False)
