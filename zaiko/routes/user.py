@@ -1,25 +1,56 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Form, Request
 from fastapi.responses import JSONResponse
-from services.user_service import list_users, add_user, delete_user
-from schemas.user_schema import UserSchema
+
+#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+from fastapi.security import OAuth2PasswordRequestForm
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+from datetime import timedelta
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+from schemas.user_schema import UserSchema, UserLogin
 from typing import List
 import logging
+import services.user_service as us 
+from services.token_service import login_for_access_token, verify_token
 
 router = APIRouter( prefix="/user", tags=["user"])
 logger = logging.getLogger()
 
+oauth2_scheme = True#OAuth2PasswordBearer(tokenUrl="token")
+
+@router.post("/login")
+async def post_login(u: UserLogin): 
+    resp = await login_for_access_token(u.email, u.password) 
+    if  resp.get("error"):
+        logger.error(resp)
+        return JSONResponse(content=resp, status_code=401)
+    return JSONResponse(status_code= 200, content= resp)
+
+
 @router.post("/add")
 async def post_user(u: UserSchema):
-    resp = await add_user(u)
+    resp = await us.add_user(u)
     if  isinstance(resp,str):
         logger.error(resp)
         return JSONResponse(content=resp, status_code=500)
     return JSONResponse(status_code= 200, content= "User added successfully")
 
 
+@router.get("/checkauth")
+async def check_auth(auth:bool=True ):
+    if  auth:
+        return JSONResponse(status_code= 200, content= "Token is valid")
+    return JSONResponse(status_code= 401, content= "Token is invalid")
+
 @router.get("/list")
 async def get_users():
-    _users = await list_users()
+    _users = await us.list_users()
     if  isinstance(_users,str):
         logger.error(_users)
         return JSONResponse(content=_users, status_code=500)
@@ -39,9 +70,20 @@ async def get_users():
 
 @router.delete("/delete")
 async def del_user(id: int):
-    _users = await delete_user(id)
+    _users = await us.delete_user(id)
     if  isinstance(_users,str):
         logger.error(_users)
         return JSONResponse(content= _users , status_code=500)
 
     return JSONResponse (status_code= 200, content= "User deleted successfully")
+
+    
+@router.post("/login/emailrecovery")
+async def login_email_recovery(email: str):
+    _users = await us.login_email_recovery(id)
+    if  _users.get("error"):
+        return JSONResponse(content= "Can't Impossible Check Email" , status_code=500)
+
+    return JSONResponse (status_code= 200, content= "Password sent  successfully to email")
+
+
