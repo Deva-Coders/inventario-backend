@@ -10,8 +10,6 @@ async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
 )
 
-#connection = psycopg2.connect(host='zaiko-db', user='postgres', password='iiiiiooooo', dbname='postgres')
-
 async def create_tables():
     try:
         async with engine.begin() as conn:

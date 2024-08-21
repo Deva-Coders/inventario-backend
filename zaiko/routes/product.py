@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from services.product_service import list_products, add_product, delete_product
+from services.product_service import list_products, add_product, delete_product, update_product
 from schemas.product_schema import ProductSchema
 from typing import List
 import logging
@@ -38,6 +38,15 @@ async def get_products():
 @router.delete("/delete")
 async def del_product(id: int):
     _products = await delete_product(id)
+    if  isinstance(_products,str):
+        logger.error(_products)
+        return JSONResponse(content= _products , status_code=500)
+
+    return JSONResponse (status_code= 200, content= _products)
+
+@router.put("/update")
+async def put_product(id: int, p: ProductSchema):
+    _products = await update_product(id, p)
     if  isinstance(_products,str):
         logger.error(_products)
         return JSONResponse(content= _products , status_code=500)

@@ -78,12 +78,22 @@ async def del_user(id: int):
     return JSONResponse (status_code= 200, content= "User deleted successfully")
 
     
-@router.post("/login/emailrecovery")
-async def login_email_recovery(email: str):
-    _users = await us.login_email_recovery(id)
-    if  _users.get("error"):
-        return JSONResponse(content= "Can't Impossible Check Email" , status_code=500)
+@router.post("/password/recovery" )
+async def login_password_recovery(email: str, Depends: bool = False):
+    resp = await us.password_recovery(email)
+    if  resp.get("error"):
+        logger.error(resp)
+        return JSONResponse(content= "Wrong check Email" , status_code=500)
 
-    return JSONResponse (status_code= 200, content= "Password sent  successfully to email")
+    return JSONResponse (status_code= 200, content= resp)
 
+
+@router.put("/password/reset" )
+async def login_password_reset(email: str, Depends: bool = False):
+    resp = await us.password_reset(email)
+    if  resp.get("error"):
+        logger.error(resp)
+        return JSONResponse(content= "Wrong check Email" , status_code=500)
+
+    return JSONResponse (status_code= 200, content= resp)
 
