@@ -16,6 +16,7 @@ COPY ./zaiko .
 
 # Expose the port the app runs on
 EXPOSE 80
+EXPOSE 8050
 
 # Start the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
