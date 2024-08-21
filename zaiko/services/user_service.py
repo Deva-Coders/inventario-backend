@@ -76,7 +76,7 @@ async def password_reset(new_password:str, token: str):
         async with session() as mysession:
             async with mysession.begin():
                 encrypted_password = hash.bcrypt.encrypt(new_password)
-                result = await mysession.execute(update(User).where(User.email == 'ismaelv@zaiko.com').values(password=encrypted_password))
+                result = await mysession.execute(update(User).where(User.email == token).values(password=encrypted_password))
                 if result.rowcount == 1:
                     await mysession.commit()
                     return {"isReset": True}

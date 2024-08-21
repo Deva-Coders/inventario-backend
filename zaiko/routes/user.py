@@ -89,8 +89,8 @@ async def login_password_recovery(email: str, Depends: bool = False):
 
 
 @router.put("/password/reset" )
-async def login_password_reset(email: str, Depends: bool = False):
-    resp = await us.password_reset(email)
+async def login_password_reset(new_password: str, email: str): 
+    resp = await us.password_reset(new_password, email)
     if  resp.get("error"):
         logger.error(resp)
         return JSONResponse(content= "Wrong check Email" , status_code=500)
