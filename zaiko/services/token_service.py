@@ -35,11 +35,10 @@ async def create_access_token(data: dict, expires_delta: timedelta | None = None
 async def login_for_access_token(username: str, password: str):
     logger.error(f"Valida: {username} - {password}")
     user = await authenticate_user(username, password)
-    logger.error(f"User: {user}")
-    if not user:
-        return {"error": "Incorrect username or password"}
-    access_token_expires = timedelta(minutes=int(config("ACCESS_TOKEN_EXPIRE_MINUTES")))
-    access_token = await create_access_token(
-        data={"sub": user.fullName}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}    
+    if user:
+        access_token_expires = timedelta(minutes=int(config("ACCESS_TOKEN_EXPIRE_MINUTES")))
+        access_token = await create_access_token(
+            data={"sub": user.fullName}, expires_delta=access_token_expires
+        )
+        return {"access_token": access_token, "token_type": "bearer"}    
+    return {"error": "Incorrect username or password"}

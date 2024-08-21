@@ -38,3 +38,27 @@ async def delete_product(id: int):
 
     except Exception as e:
         return  str(e)
+
+
+async def update_product(id: int, p: ProductSchema):
+    """Update a product from the database"""
+    try:
+        async with session() as mysession:
+            async with mysession.begin():
+                result=await mysession.execute(update(Product).where(Product.id == id).values(
+                name =p.name,
+                code =  p.code,
+                description = p.description,
+                unitPrice=p.unitPrice, 
+                image = p.image, 
+                supplier=p.supplier,
+                category=p.category,
+                ware=p.warehouse
+                ))
+                if result.rowcount == 1:
+                    await mysession.commit()
+                    return True
+                return False
+
+    except Exception as e:
+        return  str(e)

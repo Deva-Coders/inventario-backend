@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
-from passlib import hash
+from passlib import hash,pwd
 
 
 
@@ -60,21 +60,47 @@ async def authenticate_user(username: str, password: str):
         async with session() as mysession:
             async with mysession.begin():
                 encrypted_password = hash.bcrypt.encrypt(password)
-                logged = await mysession.execute(select(User).where(User.email == username and User.password == encrypted_password))
-                return logged.scalar_one_or_none()
+                logged = await mysession.execute(select(User).where(User.email == username))
+                user = logged.scalar_one_or_none()
+                if user and hash.bcrypt.verify(password, user.password):
+                    return user 
+                return None
 
     except Exception as e:
-        return  str(e)
+        #return {"isValidAuth": False, "error": str(e)} 
+        return None
 
-async def login_reset_user(u: UserLoginReset):
-    """Delete a user from the database"""
+async def password_reset(new_password:str, token: str):
+    """Change password for user in database"""
     try:
         async with session() as mysession:
             async with mysession.begin():
-                logged = await mysession.execute(selete(User).where(User.email == u.email and User.password == u.password))
+                encrypted_password = hash.bcrypt.encrypt(new_password)
+                result = await mysession.execute(update(User).where(User.email == token).values(password=encrypted_password))
+                if result.rowcount == 1:
+                    await mysession.commit()
+                    return {"isReset": True}
 
-                return logged.scalar_one_or_none()
+        return {"isReset": False, "error": "User not found"} 
 
     except Exception as e:
-        return  str(e)
+        return {"isReset": False, "error": str(e)} 
+
+async def password_recovery(email:str):
+    """Recieve email and send password to email"""
+    try:
+        async with session() as mysession:
+            async with mysession.begin():
+                logged = await mysession.execute(select(User).where(User.email == email))
+                user = logged.scalar_one_or_none()
+
+                recovery_password = pwd.genword(length=10)
+                result = await password_reset(recovery_password, email)
+                if result.get("isReset"):
+                    return {"isSendedEmail": True, "email": email, "password": recovery_password}
+                else:
+                    return {"isSendedEmail": False, "error":  result.get("error")}
+
+    except Exception as e:
+        return  {"error": str(e)}
 
