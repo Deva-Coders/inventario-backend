@@ -41,8 +41,7 @@ async def post_login(u: UserLogin):
 
 
 @router.post("/add")
-async def post_user(u: UserSchema, valid=Depends(get_current_user)):   
-    logger.info(f"valid: {valid}")
+async def post_user(u: UserSchema):   
     resp = await us.add_user(u)
     if  isinstance(resp,str):
         logger.error(resp)
@@ -114,3 +113,11 @@ async def security_question(email: str):
         return JSONResponse(content= resp.get("error") , status_code=500)
 
     return JSONResponse (status_code= 200, content= resp)
+
+@router.get("/security/answer" )
+async def security_answer(email:str, answer:str):   
+    resp = await us.security_answer(user_email=email, user_answer=answer)
+    if  resp:
+        return JSONResponse(content= True , status_code=200)
+
+    return JSONResponse (status_code= 200, content= False)
