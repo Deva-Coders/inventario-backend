@@ -17,4 +17,3 @@ async def create_tables():
         return  "Tables created successfully"
     except Exception as e:
         return str(e)
-

@@ -4,12 +4,10 @@ from sqlalchemy.future import select
 from sqlalchemy import update, delete
 from schemas.user_schema import UserSchema, UserLogin, UserLoginReset
 from decouple import config
-from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from passlib import hash,pwd
-
 
 
 async def list_users():
@@ -91,8 +89,6 @@ async def password_recovery(email:str):
     try:
         async with session() as mysession:
             async with mysession.begin():
-                logged = await mysession.execute(select(User).where(User.email == email))
-                user = logged.scalar_one_or_none()
 
                 recovery_password = pwd.genword(length=10)
                 result = await password_reset(recovery_password, email)
@@ -100,6 +96,21 @@ async def password_recovery(email:str):
                     return {"isSendedEmail": True, "email": email, "password": recovery_password}
                 else:
                     return {"isSendedEmail": False, "error":  result.get("error")}
+
+    except Exception as e:
+        return  {"error": str(e)}
+
+async def security_question(email:str):
+    """Recieve email and send security question"""
+    try:
+        async with session() as mysession:
+            async with mysession.begin():
+                logged = await mysession.execute(select(User).where(User.email == email))
+                user = logged.scalar_one_or_none()
+                if user:
+                    return {"question": user.secretQuestion}
+                else:
+                    return {"error": "User not found!" }
 
     except Exception as e:
         return  {"error": str(e)}
