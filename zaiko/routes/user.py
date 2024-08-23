@@ -5,8 +5,6 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 from datetime import timedelta
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -22,7 +20,16 @@ from services.token_service import login_for_access_token, verify_token
 router = APIRouter( prefix="/user", tags=["user"])
 logger = logging.getLogger()
 
-oauth2_scheme = True#OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
+valid_token = verify_token(Depends(oauth2_scheme))
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    return verify_token(token, credentials_exception)
 
 @router.post("/login")
 async def post_login(u: UserLogin): 
@@ -34,7 +41,7 @@ async def post_login(u: UserLogin):
 
 
 @router.post("/add")
-async def post_user(u: UserSchema):
+async def post_user(u: UserSchema):   
     resp = await us.add_user(u)
     if  isinstance(resp,str):
         logger.error(resp)
@@ -78,8 +85,8 @@ async def del_user(id: int):
     return JSONResponse (status_code= 200, content= "User deleted successfully")
 
     
-@router.post("/password/recovery" )
-async def login_password_recovery(email: str, Depends: bool = False):
+@router.get("/password/recovery" )
+async def login_password_recovery(email: str):
     resp = await us.password_recovery(email)
     if  resp.get("error"):
         logger.error(resp)
@@ -97,3 +104,20 @@ async def login_password_reset(new_password: str, email: str):
 
     return JSONResponse (status_code= 200, content= resp)
 
+
+@router.get("/security/question" )
+async def security_question(email: str):
+    resp = await us.security_question(email)
+    if  resp.get("error"):
+        logger.error(resp)
+        return JSONResponse(content= resp.get("error") , status_code=500)
+
+    return JSONResponse (status_code= 200, content= resp)
+
+@router.get("/security/answer" )
+async def security_answer(email:str, answer:str):   
+    resp = await us.security_answer(user_email=email, user_answer=answer)
+    if  resp:
+        return JSONResponse(content= True , status_code=200)
+
+    return JSONResponse (status_code= 200, content= False)

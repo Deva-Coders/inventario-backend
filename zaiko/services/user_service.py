@@ -2,14 +2,12 @@ from models.models import User
 from db  import async_session as session
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
-from schemas.user_schema import UserSchema, UserLogin, UserLoginReset
+from schemas.user_schema import UserSchema
 from decouple import config
-from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from passlib import hash,pwd
-
 
 
 async def list_users():
@@ -59,7 +57,6 @@ async def authenticate_user(username: str, password: str):
     try:
         async with session() as mysession:
             async with mysession.begin():
-                encrypted_password = hash.bcrypt.encrypt(password)
                 logged = await mysession.execute(select(User).where(User.email == username))
                 user = logged.scalar_one_or_none()
                 if user and hash.bcrypt.verify(password, user.password):
@@ -91,8 +88,6 @@ async def password_recovery(email:str):
     try:
         async with session() as mysession:
             async with mysession.begin():
-                logged = await mysession.execute(select(User).where(User.email == email))
-                user = logged.scalar_one_or_none()
 
                 recovery_password = pwd.genword(length=10)
                 result = await password_reset(recovery_password, email)
@@ -103,4 +98,35 @@ async def password_recovery(email:str):
 
     except Exception as e:
         return  {"error": str(e)}
+
+async def security_question(email:str):
+    """Recieve email and send security question"""
+    try:
+        async with session() as mysession:
+            async with mysession.begin():
+                logged = await mysession.execute(select(User).where(User.email == email))
+                user = logged.scalar_one_or_none()
+                if user:
+                    return {"question": user.secretQuestion}
+                else:
+                    return {"error": "User not found!" }
+
+    except Exception as e:
+        return  {"error": str(e)}
+
+
+async def security_answer(user_email,user_answer)-> bool:
+    """Recieve email and answer security question"""
+    try:
+        async with session() as mysession:
+            async with mysession.begin():
+                logged = await mysession.execute(select(User).where(User.email == user_email))
+                user = logged.scalar_one_or_none()
+                if user and hash.bcrypt.verify(user_answer, user.secretAnswer):
+                    return True 
+                else:
+                    return False
+
+    except Exception as e:
+        return False 
 

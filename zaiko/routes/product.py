@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import JSONResponse
 from services.product_service import list_products, add_product, delete_product, update_product
 from schemas.product_schema import ProductSchema
 from typing import List
 import logging
+import os
 
 router = APIRouter( prefix="/product", tags=["product"])
 logger = logging.getLogger()
@@ -52,3 +53,18 @@ async def put_product(id: int, p: ProductSchema):
         return JSONResponse(content= _products , status_code=500)
 
     return JSONResponse (status_code= 200, content= _products)
+
+@router.post("/uploadfile/")
+async def create_upload_file(file: UploadFile | None = None):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+        try:
+            save_path = f"uploads/{file.filename}"
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            with open(save_path, "wb") as buffer:
+                buffer.write(await file.read())
+        except Exception as e:
+            return JSONResponse (status_code= 500, content= {"msg":"Error uploading", "error": str(e)})
+
+        return JSONResponse (status_code= 200, content={"filename": file.filename})
