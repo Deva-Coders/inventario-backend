@@ -43,10 +43,10 @@ async def post_login(u: UserLogin):
 @router.post("/add")
 async def post_user(u: UserSchema):   
     resp = await us.add_user(u)
-    if  isinstance(resp,str):
+    if  resp.get("error"):
         logger.error(resp)
-        return JSONResponse(content=resp, status_code=500)
-    return JSONResponse(status_code= 200, content= "User added successfully")
+        return JSONResponse(content=resp.get("error"), status_code=500)
+    return JSONResponse(status_code= 200, content= resp.get("success"))
 
 
 @router.get("/checkauth")

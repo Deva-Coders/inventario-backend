@@ -2,6 +2,7 @@ from models.models import User
 from db  import async_session as session
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
+from sqlalchemy.exc import IntegrityError
 from schemas.user_schema import UserSchema
 from decouple import config
 from datetime import datetime, timedelta
@@ -37,9 +38,11 @@ async def add_user(user: UserSchema):
                     )
                 mysession.add(new_user)
                 await mysession.commit()        
-
+        return  {"success": "User registered successfully"}
+    except IntegrityError as edup:
+        return   {"error": "Email already exists", "detail":str(edup)}
     except Exception as e:
-        return  str(e)
+        return  {"error": "Falla en el registro del usuario", "detail":str(e)}
 
 async def delete_user(id: int):
     """Delete a user from the database"""
